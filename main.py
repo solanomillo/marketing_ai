@@ -1,20 +1,18 @@
 """
-Punto de entrada principal.
+Prueba de herramientas.
 """
 
-from config.llm import get_llm
+from tools.tavily_tools import tavily_tool
 
 
 def main():
 
-    llm = get_llm()
-
-    response = llm.invoke(
-        "Dame una idea viral para TikTok sobre barbería"
+    response = tavily_tool.invoke(
+        "Tendencias de marketing para TikTok 2026"
     )
 
-    print("\nRESPUESTA:\n")
-    print(response.content)
+    print("\nRESULTADOS:\n")
+    print(response)
 
 
 if __name__ == "__main__":
