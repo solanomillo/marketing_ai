@@ -1,10 +1,20 @@
 """
-Punto de entrada principal del proyecto.
+Punto de entrada principal.
 """
+
+from config.llm import get_llm
 
 
 def main():
-    print("Marketing AI iniciado correctamente")
+
+    llm = get_llm()
+
+    response = llm.invoke(
+        "Dame una idea viral para TikTok sobre barbería"
+    )
+
+    print("\nRESPUESTA:\n")
+    print(response.content)
 
 
 if __name__ == "__main__":

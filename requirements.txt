@@ -1,0 +1,13 @@
+langchain
+langchain-core
+langchain-community
+langgraph
+langgraph-supervisor
+langgraph-checkpoint-sqlite
+langchain-google-genai
+streamlit
+pydantic
+python-dotenv
+langchain-tavily
+sqlalchemy
+aiosqlite
