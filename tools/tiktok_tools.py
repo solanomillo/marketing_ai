@@ -1,11 +1,13 @@
 """
 Herramientas relacionadas con TikTok.
 """
+from langchain_core.tools import tool
 
 
+@tool
 def get_tiktok_trends(topic: str) -> str:
     """
-    Simula tendencias virales de TikTok.
+    Obtiene tendencias virales de TikTok.
     """
 
     trends = [

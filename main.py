@@ -1,29 +1,27 @@
-"""
-Prueba de modelos Pydantic.
-"""
-
-from schemas.responses import (
-    ContentResponse
-)
-
+from agents.content_agent import content_agent
 
 def main():
-
-    response = ContentResponse(
-        hook="El secreto de barbería que nadie conoce",
-        caption="Transforma tu estilo hoy",
-        hashtags=[
-            "#barberia",
-            "#viral",
-            "#fyp"
-        ],
-        call_to_action="Reserva tu turno ahora"
+    result = content_agent.invoke(
+        {
+            "messages": [
+                (
+                    "user",
+                    "Genera una idea viral para una barbería"
+                )
+            ]
+        }
     )
-
-    print("\nRESPUESTA ESTRUCTURADA:\n")
-
-    print(response.model_dump())
-
+    
+    # Extraer solo el contenido del último mensaje
+    ultimo_mensaje = result['messages'][-1]
+    
+    # Si el contenido es una lista (como en Gemini)
+    if isinstance(ultimo_mensaje.content, list):
+        contenido = ultimo_mensaje.content[0]['text']
+    else:
+        contenido = ultimo_mensaje.content
+    
+    print(contenido)
 
 if __name__ == "__main__":
     main()

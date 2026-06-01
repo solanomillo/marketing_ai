@@ -1,53 +1,47 @@
-"""
-Formateador de contenido según plataforma.
-"""
+from langchain_core.tools import tool
 
 
+@tool
 def format_for_platform(
     content: str,
     platform: str
 ) -> str:
     """
-    Adapta contenido según red social.
+    Adapta contenido para TikTok, Instagram,
+    Facebook o WhatsApp.
     """
 
-    platform = platform.lower()
+    platform = platform.lower().strip()
 
-    if platform == "tiktok":
-        return f"""
-🎵 TikTok Version:
+    templates = {
+        "tiktok": f"""
+🎵 TikTok Version
 
 {content}
 
 👉 Hook corto
 👉 CTA rápido
 👉 Estilo viral
-"""
-
-    if platform == "instagram":
-        return f"""
-📸 Instagram Version:
+""",
+        "instagram": f"""
+📸 Instagram Version
 
 {content}
 
 ✨ Visual
 ✨ Estético
 ✨ Emocional
-"""
-
-    if platform == "facebook":
-        return f"""
-📘 Facebook Version:
+""",
+        "facebook": f"""
+📘 Facebook Version
 
 {content}
 
 📝 Más descriptivo
 📝 Más contexto
-"""
-
-    if platform == "whatsapp":
-        return f"""
-💬 WhatsApp Version:
+""",
+        "whatsapp": f"""
+💬 WhatsApp Version
 
 {content}
 
@@ -55,5 +49,6 @@ def format_for_platform(
 ✅ Corto
 ✅ Conversacional
 """
+    }
 
-    return content
+    return templates.get(platform, content)

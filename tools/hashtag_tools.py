@@ -1,11 +1,13 @@
 """
 Herramientas para generación de hashtags.
 """
+from langchain_core.tools import tool
 
 
+@tool
 def generate_hashtags(topic: str) -> str:
     """
-    Genera hashtags optimizados.
+    Genera hashtags optimizados para marketing.
     """
 
     hashtags = [

@@ -1,25 +1,12 @@
-"""
-Estado global del sistema multiagente.
-"""
+from typing import Annotated
+from typing_extensions import TypedDict
 
-from typing import TypedDict, List, Optional
+from langgraph.graph.message import add_messages
+from langchain_core.messages import BaseMessage
 
 
 class MarketingState(TypedDict):
-    """
-    State compartido entre nodos y agentes.
-    """
-
-    user_input: str
-
-    messages: List[str]
-
-    active_agent: Optional[str]
-
-    content_output: Optional[str]
-
-    seo_output: Optional[str]
-
-    ads_output: Optional[str]
-
-    final_response: Optional[str]
+    messages: Annotated[
+        list[BaseMessage],
+        add_messages
+    ]
