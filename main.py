@@ -1,16 +1,19 @@
-from agents.supervisor import build_supervisor
+from graph.marketing_graph import (
+    build_marketing_graph
+)
+
 
 def main():
-    app = build_supervisor()
 
-    response = app.invoke(
+    graph = build_marketing_graph()
+
+    result = graph.invoke(
         {
             "messages": [
                 (
                     "user",
                     """
-                    Quiero una campaña para TikTok
-                    para una barbería premium.
+                    Genera hashtags para barbería.
                     """
                 )
             ]
@@ -18,7 +21,7 @@ def main():
     )
     
     # Extraer el último mensaje (respuesta final)
-    ultimo_mensaje = response['messages'][-1]
+    ultimo_mensaje = result['messages'][-1]
     
     # Obtener el contenido
     if isinstance(ultimo_mensaje.content, list):
