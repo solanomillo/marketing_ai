@@ -2,7 +2,7 @@
 Agente publicitario.
 """
 
-from agents.agent_factory import build_agent
+from agents.agent_factory import build_agents
 
 from tools.tavily_tools import tavily_tool
 
@@ -108,7 +108,7 @@ Responde como un media buyer senior: números, estructura, y sin fluff.
 """
 
 def get_ads_agent():
-    ads_agent = build_agent(
+    ads_agent = build_agents(
         name="ads_agent",
         system_prompt=ADS_AGENT_PROMPT,
         tools=[

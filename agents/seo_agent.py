@@ -2,7 +2,7 @@
 Agente SEO.
 """
 
-from agents.agent_factory import build_agent
+from agents.agent_factory import build_agents
 
 from tools.tavily_tools import tavily_tool
 from tools.seo_tools import generate_seo_keywords
@@ -68,7 +68,7 @@ Siempre responde como un consultor SEO senior: datos, no opiniones vagas.
 """
 
 def get_seo_agent():
-    seo_agent = build_agent(
+    seo_agent = build_agents(
         name="seo_agent",
         system_prompt=SEO_AGENT_PROMPT,
         tools=[

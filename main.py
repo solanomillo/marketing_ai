@@ -1,21 +1,26 @@
-from agents.content_agent import content_agent
+from agents.supervisor import build_supervisor
 
 def main():
-    result = content_agent.invoke(
+    app = build_supervisor()
+
+    response = app.invoke(
         {
             "messages": [
                 (
                     "user",
-                    "Genera una idea viral para una barbería"
+                    """
+                    Quiero una campaña para TikTok
+                    para una barbería premium.
+                    """
                 )
             ]
         }
     )
     
-    # Extraer solo el contenido del último mensaje
-    ultimo_mensaje = result['messages'][-1]
+    # Extraer el último mensaje (respuesta final)
+    ultimo_mensaje = response['messages'][-1]
     
-    # Si el contenido es una lista (como en Gemini)
+    # Obtener el contenido
     if isinstance(ultimo_mensaje.content, list):
         contenido = ultimo_mensaje.content[0]['text']
     else:

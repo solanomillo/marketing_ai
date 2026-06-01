@@ -2,7 +2,7 @@
 Agente especialista en redes sociales.
 """
 
-from agents.agent_factory import build_agent
+from agents.agent_factory import build_agents
 
 from tools.formatter_tools import format_for_platform
 
@@ -87,7 +87,7 @@ Responde como un community manager senior: práctico, actualizado y sin relleno.
 """
 
 def get_social_agent():
-  social_agent = build_agent(
+  social_agent = build_agents(
       name="social_agent",
     system_prompt=SOCIAL_AGENT_PROMPT,
       tools=[
