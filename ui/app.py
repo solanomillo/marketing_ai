@@ -26,6 +26,12 @@ from services.thread_service import (
     initialize_threads,
     create_new_thread,
     load_threads,
+    remove_thread,
+    generate_title,
+)
+
+from memory.conversation_memory import (
+    update_title,
 )
 
 
@@ -41,7 +47,7 @@ st.set_page_config(
 
 
 # ==================================================
-# THREADS
+# SESSION
 # ==================================================
 
 if "thread_id" not in st.session_state:
@@ -73,12 +79,27 @@ with st.sidebar:
             "Conversaciones",
             options=list(
                 threads.keys()
-            )
+            ),
+            key="conversation_selector"
         )
 
         st.session_state.thread_id = (
             threads[selected]
         )
+
+        if st.button(
+            "🗑 Eliminar conversación",
+            use_container_width=True,
+        ):
+
+            remove_thread(
+                st.session_state.thread_id
+            )
+
+            st.session_state.loaded_thread = None
+            st.session_state.messages = []
+
+            st.rerun()
 
     if st.button(
         "➕ Nueva conversación",
@@ -90,16 +111,9 @@ with st.sidebar:
         )
 
         st.session_state.messages = []
-
         st.session_state.loaded_thread = None
 
         st.rerun()
-
-    st.divider()
-
-    st.code(
-        st.session_state.thread_id
-    )
 
 
 # ==================================================
@@ -110,7 +124,7 @@ graph = get_graph()
 
 
 # ==================================================
-# CARGAR HISTORIAL
+# HISTORIAL
 # ==================================================
 
 if (
@@ -131,25 +145,31 @@ if (
 
 
 # ==================================================
-# UI
+# TITULO
 # ==================================================
 
 st.title(
     "🚀 Marketing AI Multiagente"
 )
 
+
+# ==================================================
+# CHAT HISTORY
+# ==================================================
+
 for msg in st.session_state.messages:
 
     with st.chat_message(
         msg["role"]
     ):
+
         st.markdown(
             msg["content"]
         )
 
 
 # ==================================================
-# CHAT
+# INPUT
 # ==================================================
 
 prompt = st.chat_input(
@@ -158,6 +178,27 @@ prompt = st.chat_input(
 
 if prompt:
 
+    # --------------------------------
+    # Título automático
+    # --------------------------------
+
+    if len(
+        st.session_state.messages
+    ) == 0:
+
+        title = generate_title(
+            prompt
+        )
+
+        update_title(
+            st.session_state.thread_id,
+            title,
+        )
+
+    # --------------------------------
+    # Usuario
+    # --------------------------------
+
     st.session_state.messages.append(
         {
             "role": "user",
@@ -165,7 +206,9 @@ if prompt:
         }
     )
 
-    with st.chat_message("user"):
+    with st.chat_message(
+        "user"
+    ):
         st.markdown(prompt)
 
     config = {
@@ -175,54 +218,118 @@ if prompt:
         }
     }
 
+    # --------------------------------
+    # Streaming
+    # --------------------------------
+
+    answer = ""
+
     with st.chat_message(
         "assistant"
     ):
 
-        with st.spinner(
-            "Analizando..."
-        ):
+        status_box = st.empty()
 
-            result = graph.invoke(
-                {
-                    "messages": [
-                        (
-                            "user",
-                            prompt
-                        )
-                    ]
-                },
-                config=config,
+        final_box = st.empty()
+
+        from services.streaming_service import (
+            get_agent_label
+        )
+
+        events = graph.stream(
+            {
+                "messages": [
+                    (
+                        "user",
+                        prompt
+                    )
+                ]
+            },
+            config=config,
+        )
+
+        for event in events:
+
+            node_name = list(
+                event.keys()
+            )[0]
+
+            label = get_agent_label(
+                node_name
             )
 
-            last_message = (
-                result["messages"][-1]
+            status_box.info(
+                f"{label} trabajando..."
             )
 
-            if isinstance(
-                last_message.content,
-                list
+            node_data = event[
+                node_name
+            ]
+
+            if (
+                "messages"
+                in node_data
             ):
 
-                answer = "\n".join(
-                    item.get(
-                        "text",
-                        ""
+                messages = node_data[
+                    "messages"
+                ]
+
+                if messages:
+
+                    last_message = (
+                        messages[-1]
                     )
-                    for item in last_message.content
-                    if isinstance(
-                        item,
-                        dict
-                    )
-                )
 
-            else:
+                    if hasattr(
+                        last_message,
+                        "content"
+                    ):
 
-                answer = (
-                    last_message.content
-                )
+                        content = (
+                            last_message.content
+                        )
 
-            st.markdown(answer)
+                        if isinstance(
+                            content,
+                            list
+                        ):
+
+                            answer = "\n".join(
+                                item.get(
+                                    "text",
+                                    ""
+                                )
+                                for item in content
+                                if isinstance(
+                                    item,
+                                    dict
+                                )
+                            )
+
+                        elif isinstance(
+                            content,
+                            str
+                        ):
+
+                            if (
+                                len(
+                                    content
+                                )
+                                > 50
+                            ):
+
+                                answer = (
+                                    content
+                                )
+
+        status_box.success(
+            "✅ Proceso completado"
+        )
+
+        final_box.markdown(
+            answer
+        )
 
     st.session_state.messages.append(
         {
@@ -230,3 +337,5 @@ if prompt:
             "content": answer,
         }
     )
+
+    st.rerun()
