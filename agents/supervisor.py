@@ -127,7 +127,7 @@ Responde como un CMO ejecutivo: estratégico, estructurado, y sin pasarte del pr
 """
 
 
-def build_supervisor():
+def build_supervisor(checkpointer=None):
     """
     Construye y retorna el grafo del supervisor compilado.
     
@@ -145,4 +145,4 @@ def build_supervisor():
         system_prompt=SUPERVISOR_PROMPT,
     )
 
-    return supervisor.compile()
+    return supervisor.compile(checkpointer=checkpointer)

@@ -12,6 +12,6 @@ def build_marketing_graph(
     Construye el graph principal.
     """
 
-    supervisor = build_supervisor()
+    supervisor = build_supervisor(checkpointer=checkpointer)
 
     return supervisor

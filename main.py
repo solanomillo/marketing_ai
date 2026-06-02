@@ -2,10 +2,24 @@ from graph.marketing_graph import (
     build_marketing_graph
 )
 
+from memory.sqlite_memory import (
+    get_checkpointer
+)
+
 
 def main():
 
-    graph = build_marketing_graph()
+    memory = get_checkpointer()
+
+    graph = build_marketing_graph(
+        checkpointer=memory
+    )
+
+    config = {
+        "configurable": {
+            "thread_id": "usuario_1"
+        }
+    }
 
     result = graph.invoke(
         {
@@ -13,12 +27,14 @@ def main():
                 (
                     "user",
                     """
-                    Genera hashtags para barbería.
+                    De qué es mi negocio?.
                     """
                 )
             ]
-        }
+        },
+        config=config,
     )
+        
     
     # Extraer el último mensaje (respuesta final)
     ultimo_mensaje = result['messages'][-1]
