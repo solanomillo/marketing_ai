@@ -178,9 +178,9 @@ prompt = st.chat_input(
 
 if prompt:
 
-    # --------------------------------
+    # -----------------------------
     # Título automático
-    # --------------------------------
+    # -----------------------------
 
     if len(
         st.session_state.messages
@@ -195,9 +195,9 @@ if prompt:
             title,
         )
 
-    # --------------------------------
+    # -----------------------------
     # Usuario
-    # --------------------------------
+    # -----------------------------
 
     st.session_state.messages.append(
         {
@@ -218,118 +218,60 @@ if prompt:
         }
     }
 
-    # --------------------------------
-    # Streaming
-    # --------------------------------
-
-    answer = ""
+    # -----------------------------
+    # IA
+    # -----------------------------
 
     with st.chat_message(
         "assistant"
     ):
 
-        status_box = st.empty()
+        with st.spinner(
+            "Analizando..."
+        ):
 
-        final_box = st.empty()
-
-        from services.streaming_service import (
-            get_agent_label
-        )
-
-        events = graph.stream(
-            {
-                "messages": [
-                    (
-                        "user",
-                        prompt
-                    )
-                ]
-            },
-            config=config,
-        )
-
-        for event in events:
-
-            node_name = list(
-                event.keys()
-            )[0]
-
-            label = get_agent_label(
-                node_name
+            result = graph.invoke(
+                {
+                    "messages": [
+                        (
+                            "user",
+                            prompt
+                        )
+                    ]
+                },
+                config=config,
             )
 
-            status_box.info(
-                f"{label} trabajando..."
+            last_message = (
+                result["messages"][-1]
             )
 
-            node_data = event[
-                node_name
-            ]
-
-            if (
-                "messages"
-                in node_data
+            if isinstance(
+                last_message.content,
+                list
             ):
 
-                messages = node_data[
-                    "messages"
-                ]
-
-                if messages:
-
-                    last_message = (
-                        messages[-1]
+                answer = "\n".join(
+                    item.get(
+                        "text",
+                        ""
                     )
+                    for item in last_message.content
+                    if isinstance(
+                        item,
+                        dict
+                    )
+                )
 
-                    if hasattr(
-                        last_message,
-                        "content"
-                    ):
+            else:
 
-                        content = (
-                            last_message.content
-                        )
+                answer = (
+                    last_message.content
+                )
 
-                        if isinstance(
-                            content,
-                            list
-                        ):
-
-                            answer = "\n".join(
-                                item.get(
-                                    "text",
-                                    ""
-                                )
-                                for item in content
-                                if isinstance(
-                                    item,
-                                    dict
-                                )
-                            )
-
-                        elif isinstance(
-                            content,
-                            str
-                        ):
-
-                            if (
-                                len(
-                                    content
-                                )
-                                > 50
-                            ):
-
-                                answer = (
-                                    content
-                                )
-
-        status_box.success(
-            "✅ Proceso completado"
-        )
-
-        final_box.markdown(
-            answer
-        )
+            st.markdown(
+                answer
+            )
 
     st.session_state.messages.append(
         {
