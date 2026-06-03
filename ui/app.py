@@ -34,6 +34,7 @@ from memory.conversation_memory import (
     update_title,
 )
 
+from services.streaming_service import get_agent_label
 
 # ==================================================
 # CONFIG
@@ -232,10 +233,6 @@ if prompt:
 
         final_box = st.empty()
 
-        from services.streaming_service import (
-            get_agent_label
-        )
-
         events = graph.stream(
             {
                 "messages": [
@@ -246,91 +243,80 @@ if prompt:
                 ]
             },
             config=config,
+            stream_mode="updates",
         )
 
         for event in events:
 
-            node_name = list(
-                event.keys()
-            )[0]
+            for node_name in event.keys():
 
-            label = get_agent_label(
-                node_name
-            )
+                if node_name in [
+                    "supervisor",
+                    "content_agent",
+                    "social_agent",
+                    "seo_agent",
+                    "ads_agent",
+                ]:
 
-            status_box.info(
-                f"{label} trabajando..."
-            )
-
-            node_data = event[
-                node_name
-            ]
-
-            if (
-                "messages"
-                in node_data
-            ):
-
-                messages = node_data[
-                    "messages"
-                ]
-
-                if messages:
-
-                    last_message = (
-                        messages[-1]
+                    label = get_agent_label(
+                        node_name
                     )
 
-                    if hasattr(
-                        last_message,
-                        "content"
-                    ):
-
-                        content = (
-                            last_message.content
-                        )
-
-                        if isinstance(
-                            content,
-                            list
-                        ):
-
-                            answer = "\n".join(
-                                item.get(
-                                    "text",
-                                    ""
-                                )
-                                for item in content
-                                if isinstance(
-                                    item,
-                                    dict
-                                )
-                            )
-
-                        elif isinstance(
-                            content,
-                            str
-                        ):
-
-                            if (
-                                len(
-                                    content
-                                )
-                                > 50
-                            ):
-
-                                answer = (
-                                    content
-                                )
+                    status_box.info(
+                        f"{label} trabajando..."
+                    )
 
         status_box.success(
             "✅ Proceso completado"
         )
 
+        # --------------------------------
+        # Obtener respuesta final REAL
+        # --------------------------------
+
+        state = graph.get_state(
+            config
+        )
+
+        messages = state.values.get(
+            "messages",
+            []
+        )
+
+        if messages:
+
+            last_message = messages[-1]
+
+            content = (
+                last_message.content
+            )
+
+            if isinstance(
+                content,
+                list
+            ):
+
+                answer = "\n".join(
+                    item.get(
+                        "text",
+                        ""
+                    )
+                    for item in content
+                    if isinstance(
+                        item,
+                        dict
+                    )
+                )
+
+            else:
+
+                answer = str(
+                    content
+                )
+
         final_box.markdown(
             answer
         )
-
     st.session_state.messages.append(
         {
             "role": "assistant",

@@ -11,3 +11,4 @@ python-dotenv
 langchain-tavily
 sqlalchemy
 aiosqlite
+bcrypt
