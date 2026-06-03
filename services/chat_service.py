@@ -46,4 +46,41 @@ def format_message(message):
             "role": "assistant",
             "content": extract_content(message),
         }
-    
+
+def load_chat_history(
+    graph,
+    thread_id: str,
+):
+    """
+    Recupera historial desde SQLite.
+    """
+
+    config = {
+        "configurable": {
+            "thread_id": thread_id
+        }
+    }
+
+    state = graph.get_state(config)
+
+    if not state:
+        return []
+
+    if not state.values:
+        return []
+
+    messages = state.values.get(
+        "messages",
+        []
+    )
+
+    history = []
+
+    for msg in messages:
+
+        parsed = format_message(msg)
+
+        if parsed:
+            history.append(parsed)
+
+    return history
