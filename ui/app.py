@@ -51,10 +51,17 @@ st.set_page_config(
 # SESSION
 # ==================================================
 
+if "user_id" not in st.session_state:
+
+    st.session_state.user_id = 1
+
+
 if "thread_id" not in st.session_state:
 
     st.session_state.thread_id = (
-        initialize_threads()
+        initialize_threads(
+            st.session_state.user_id
+        )
     )
 
 if "messages" not in st.session_state:
@@ -68,7 +75,9 @@ if "loaded_thread" not in st.session_state:
 # SIDEBAR
 # ==================================================
 
-threads = load_threads()
+threads = load_threads(
+    st.session_state.user_id
+)
 
 with st.sidebar:
 
@@ -108,7 +117,9 @@ with st.sidebar:
     ):
 
         st.session_state.thread_id = (
-            create_new_thread()
+            create_new_thread(
+                st.session_state.user_id
+            )
         )
 
         st.session_state.messages = []

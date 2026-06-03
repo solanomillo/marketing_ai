@@ -9,23 +9,33 @@ from memory.conversation_memory import (
     create_conversation,
     get_conversations,
     delete_conversation,
-    update_title,
 )
 
 
-def initialize_threads():
+def initialize_threads(
+    user_id: int,
+):
+    """
+    Inicializa conversaciones
+    del usuario.
+    """
 
     initialize_conversations_table()
 
-    conversations = get_conversations()
+    conversations = get_conversations(
+        user_id
+    )
 
     if not conversations:
 
-        thread_id = str(uuid.uuid4())
+        thread_id = str(
+            uuid.uuid4()
+        )
 
         create_conversation(
-            thread_id,
-            "Nueva conversación"
+            thread_id=thread_id,
+            user_id=user_id,
+            title="Nueva conversación",
         )
 
         return thread_id
@@ -33,21 +43,37 @@ def initialize_threads():
     return conversations[0][0]
 
 
-def create_new_thread():
+def create_new_thread(
+    user_id: int,
+):
+    """
+    Crea conversación.
+    """
 
-    thread_id = str(uuid.uuid4())
+    thread_id = str(
+        uuid.uuid4()
+    )
 
     create_conversation(
-        thread_id,
-        "Nueva conversación"
+        thread_id=thread_id,
+        user_id=user_id,
+        title="Nueva conversación",
     )
 
     return thread_id
 
 
-def load_threads():
+def load_threads(
+    user_id: int,
+):
+    """
+    Obtiene conversaciones
+    del usuario.
+    """
 
-    conversations = get_conversations()
+    conversations = get_conversations(
+        user_id
+    )
 
     return {
         title: thread_id
@@ -57,7 +83,7 @@ def load_threads():
 
 
 def remove_thread(
-    thread_id: str
+    thread_id: str,
 ):
     """
     Elimina conversación.
@@ -69,10 +95,10 @@ def remove_thread(
 
 
 def generate_title(
-    text: str
+    text: str,
 ):
     """
-    Primeros 20 caracteres.
+    Genera título corto.
     """
 
     text = text.strip()
