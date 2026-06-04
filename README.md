@@ -251,7 +251,7 @@ La aplicación muestra el progreso de los agentes en tiempo real.
 ### 1. Clonar repositorio
 
 ```bash
-git clone https://github.com/tu_usuario/marketing_ai.git
+https://github.com/solanomillo/marketing_ai.git
 ```
 
 ### 2. Crear entorno virtual
