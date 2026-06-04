@@ -17,6 +17,7 @@ import streamlit as st
 from memory.user_memory import (
     create_user,
     get_user_by_username,
+    create_users_table
 )
 
 from services.auth_service import (
@@ -29,6 +30,7 @@ def show_auth_page():
     """
     Login y registro.
     """
+    create_users_table()
 
     st.title(
         "🔐 Marketing AI"
@@ -96,6 +98,10 @@ def show_auth_page():
                     True
                 )
 
+                st.session_state.thread_id = None
+                st.session_state.messages = []
+                st.session_state.loaded_thread = None
+
                 st.rerun()
 
     # ==========================
@@ -148,6 +154,6 @@ def show_auth_page():
                 )
 
                 st.success(
-                    "Usuario creado correctamente"
+                    "Usuario creado correctamente. Ahora puedes iniciar sesión."
                 )
                 

@@ -34,8 +34,10 @@ def logout():
     Cierra sesión.
     """
 
-    st.session_state.authenticated = False
+    keys = list(
+        st.session_state.keys()
+    )
 
-    st.session_state.user_id = None
+    for key in keys:
 
-    st.session_state.username = None
+        del st.session_state[key]

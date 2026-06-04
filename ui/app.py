@@ -34,8 +34,17 @@ from memory.conversation_memory import (
     update_title,
 )
 
-from services.streaming_service import get_agent_label
+from services.streaming_service import (
+    get_agent_label,
+)
+from services.session_service import (
+    initialize_session,
+    logout,
+)
 
+from ui.login import (
+    show_auth_page,
+)
 # ==================================================
 # CONFIG
 # ==================================================
@@ -46,17 +55,27 @@ st.set_page_config(
     layout="wide",
 )
 
-
 # ==================================================
 # SESSION
 # ==================================================
 
-if "user_id" not in st.session_state:
+initialize_session()
 
-    st.session_state.user_id = 1
+if not st.session_state.authenticated:
 
+    show_auth_page()
 
-if "thread_id" not in st.session_state:
+    st.stop()
+    st.write(st.session_state)
+    
+if "username" not in st.session_state:
+
+    st.session_state.username = "Usuario"
+
+if (
+    "thread_id" not in st.session_state
+    or st.session_state.thread_id is None
+):
 
     st.session_state.thread_id = (
         initialize_threads(
@@ -65,11 +84,12 @@ if "thread_id" not in st.session_state:
     )
 
 if "messages" not in st.session_state:
+
     st.session_state.messages = []
 
 if "loaded_thread" not in st.session_state:
-    st.session_state.loaded_thread = None
 
+    st.session_state.loaded_thread = None
 
 # ==================================================
 # SIDEBAR
@@ -81,20 +101,62 @@ threads = load_threads(
 
 with st.sidebar:
 
-    st.title("⚙️ Marketing AI")
+    st.markdown(
+        """
+# 🚀 Marketing AI
+
+### Plataforma Multiagente
+"""
+    )
+
+    st.success(
+        f"👤 {st.session_state.username}"
+    )
+    if st.button(
+    "🚪 Cerrar sesión",
+    use_container_width=True,
+    ):
+
+        logout()
+
+        st.rerun()
+
+    st.markdown(
+        """
+**Agentes disponibles**
+
+🧠 Supervisor
+
+✍️ Content Agent
+
+📱 Social Agent
+
+🔍 SEO Agent
+
+📢 Ads Agent
+"""
+    )
+
+    st.divider()
 
     if threads:
+
+        thread_options = {
+            f"💬 {title}": thread_id
+            for title, thread_id
+            in threads.items()
+        }
 
         selected = st.radio(
             "Conversaciones",
             options=list(
-                threads.keys()
+                thread_options.keys()
             ),
             key="conversation_selector"
         )
 
         st.session_state.thread_id = (
-            threads[selected]
+            thread_options[selected]
         )
 
         if st.button(
@@ -127,13 +189,11 @@ with st.sidebar:
 
         st.rerun()
 
-
 # ==================================================
 # GRAPH
 # ==================================================
 
 graph = get_graph()
-
 
 # ==================================================
 # HISTORIAL
@@ -155,15 +215,77 @@ if (
         st.session_state.thread_id
     )
 
-
 # ==================================================
-# TITULO
+# HEADER
 # ==================================================
 
-st.title(
-    "🚀 Marketing AI Multiagente"
+st.markdown(
+    """
+# 🚀 Marketing AI
+
+### Plataforma Inteligente de Marketing
+
+Generación de contenido • SEO • Social Media • Ads
+"""
 )
 
+col1, col2, col3, col4, col5 = st.columns(5)
+
+with col1:
+    st.metric(
+        "🧠",
+        "Supervisor"
+    )
+
+with col2:
+    st.metric(
+        "✍️",
+        "Content"
+    )
+
+with col3:
+    st.metric(
+        "📱",
+        "Social"
+    )
+
+with col4:
+    st.metric(
+        "🔍",
+        "SEO"
+    )
+
+with col5:
+    st.metric(
+        "📢",
+        "Ads"
+    )
+
+st.divider()
+
+# ==================================================
+# PANTALLA INICIAL
+# ==================================================
+
+if not st.session_state.messages:
+
+    st.info(
+        """
+### 👋 Bienvenido a Marketing AI
+
+Puedes solicitar:
+
+- Estrategias de Marketing
+- Campañas para TikTok
+- Calendarios de Contenido
+- SEO
+- Publicidad Digital
+- Embudos de Venta
+- Planes de Redes Sociales
+
+Escribe tu primera solicitud para comenzar.
+"""
+    )
 
 # ==================================================
 # CHAT HISTORY
@@ -178,7 +300,6 @@ for msg in st.session_state.messages:
         st.markdown(
             msg["content"]
         )
-
 
 # ==================================================
 # INPUT
@@ -273,8 +394,8 @@ if prompt:
                         node_name
                     )
 
-                    status_box.info(
-                        f"{label} trabajando..."
+                    status_box.warning(
+                        f"⚡ {label} trabajando..."
                     )
 
         status_box.success(
@@ -328,6 +449,7 @@ if prompt:
         final_box.markdown(
             answer
         )
+
     st.session_state.messages.append(
         {
             "role": "assistant",
